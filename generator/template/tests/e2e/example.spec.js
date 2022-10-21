@@ -1,24 +1,22 @@
-const { chromium } = require('playwright')
-const { expect } = require('chai')
+import { test, expect } from "@playwright/test";
 
-describe('My example E2E test with Playwright', () => {
-  let browser
-  let page
+test("homepage has Playwright in title and get started link linking to the intro page", async ({
+  page,
+}) => {
+  await page.goto("https://playwright.dev/");
 
-  before(async () => {
-    browser = await chromium.launch()
-    page = await browser.newPage()
-    await page.goto('https://www.example.com/')
-  })
+  // Expect a title "to contain" a substring.
+  await expect(page).toHaveTitle(/Playwright/);
 
-  after(async () => {
-    await page.close()
-    await browser.close()
-  })
+  // create a locator
+  const getStarted = page.getByText("Get Started");
 
-  it('has header', async () => {
-    const h1 = await page.$('h1')
-    const text = await h1.innerText()
-    expect(text).to.equal('Example Domain')
-  })
-})
+  // Expect an attribute "to be strictly equal" to the value.
+  await expect(getStarted).toHaveAttribute("href", "/docs/intro");
+
+  // Click the get started link.
+  await getStarted.click();
+
+  // Expects the URL to contain intro.
+  await expect(page).toHaveURL(/.*intro/);
+});
